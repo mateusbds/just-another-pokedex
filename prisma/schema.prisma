@@ -1,0 +1,1551 @@
+datasource db {
+  url      = env("DATABASE_URL")
+  provider = "postgresql"
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
+}
+
+model Abilities {
+  id           Int         @id @default(autoincrement())
+  identifier   String?
+  generationId Int
+  generation   Generations @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  isMainSeries Boolean?
+
+  abilityChangelog  AbilityChangelog[]
+  abilityFlavorText AbilityFlavorText[]
+  abilityNames      AbilityNames[]
+  abilityProse      AbilityProse[]
+  pokemonAbilities  PokemonAbilities[]
+}
+
+model AbilityChangelog {
+  id                      Int           @id @default(autoincrement())
+  abilityId               Int
+  ability                 Abilities     @relation(fields: [abilityId], references: [id], onDelete: Cascade)
+  changedInVersionGroupId Int
+  changedInVersionGroup   VersionGroups @relation(fields: [changedInVersionGroupId], references: [id], onDelete: Cascade)
+
+  abilityChangelogProse AbilityChangelogProse[]
+}
+
+model AbilityChangelogProse {
+  id                 Int              @id @default(autoincrement())
+  abilityChangelogId Int
+  abilityChangelog   AbilityChangelog @relation(fields: [abilityChangelogId], references: [id], onDelete: Cascade)
+  localLanguageId    Int
+  localLanguage      Languages        @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  effect             String
+}
+
+model AbilityFlavorText {
+  id             Int            @id @default(autoincrement())
+  abilityId      Int?
+  ability        Abilities?     @relation(fields: [abilityId], references: [id], onDelete: Cascade)
+  versionGroupId Int?
+  versionGroup   VersionGroups? @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  languageId     Int?
+  language       Languages?     @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  flavorText     String?
+}
+
+model AbilityNames {
+  id              Int        @id @default(autoincrement())
+  abilityId       Int?
+  ability         Abilities? @relation(fields: [abilityId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model AbilityProse {
+  id              Int        @id @default(autoincrement())
+  abilityId       Int?
+  ability         Abilities? @relation(fields: [abilityId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  shortEffect     String?
+  effect          String?
+}
+
+model Berries {
+  id                Int            @id @default(autoincrement())
+  itemId            Int?
+  item              Items?         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  firmnessId        Int?
+  firmness          BerryFirmness? @relation(fields: [firmnessId], references: [id], onDelete: Cascade)
+  naturalGiftPower  String?
+  naturalGiftTypeId Int?
+  naturalGiftType   Types?         @relation(fields: [naturalGiftTypeId], references: [id], onDelete: Cascade)
+  size              String?
+  maxHarvest        String?
+  growthTime        String?
+  soilDryness       String?
+  smoothness        String?
+
+  berryFlavors BerryFlavors[]
+}
+
+model BerryFirmness {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  berries            Berries[]
+  berryFirmnessNames BerryFirmnessNames[]
+}
+
+model BerryFirmnessNames {
+  id              Int            @id @default(autoincrement())
+  berryFirmnessId Int?
+  berryFirmness   BerryFirmness? @relation(fields: [berryFirmnessId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?     @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model BerryFlavors {
+  id            Int           @id @default(autoincrement())
+  berryId       Int?
+  berry         Berries?      @relation(fields: [berryId], references: [id], onDelete: Cascade)
+  contestTypeId Int?
+  contestType   ContestTypes? @relation(fields: [contestTypeId], references: [id], onDelete: Cascade)
+  flavor        String?
+}
+
+model CharacteristicText {
+  id               Int              @id @default(autoincrement())
+  characteristicId Int?
+  characteristic   Characteristics? @relation(fields: [characteristicId], references: [id], onDelete: Cascade)
+  localLanguageId  Int?
+  localLanguage    Languages?       @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  message          String?
+}
+
+model Characteristics {
+  id       Int     @id @default(autoincrement())
+  statId   Int?
+  stat     Stats?  @relation(fields: [statId], references: [id], onDelete: Cascade)
+  geneMod5 String?
+
+  characteristicText CharacteristicText[]
+}
+
+model ContestCombos {
+  id           Int    @id @default(autoincrement())
+  firstMoveId  Int?
+  firstMove    Moves? @relation(name: "firstMove", fields: [firstMoveId], references: [id], onDelete: Cascade)
+  secondMoveId Int?
+  secondMove   Moves? @relation(name: "secondMove", fields: [secondMoveId], references: [id], onDelete: Cascade)
+}
+
+model ContestEffectProse {
+  id              Int             @id @default(autoincrement())
+  contestEffectId Int?
+  contestEffect   ContestEffects? @relation(fields: [contestEffectId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?      @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  flavorText      String?
+  effect          String?
+}
+
+model ContestEffects {
+  id     Int     @id @default(autoincrement())
+  appeal String?
+  jam    String?
+
+  contestEffectProse ContestEffectProse[]
+  moves              Moves[]
+}
+
+model ContestTypeNames {
+  id              Int           @id @default(autoincrement())
+  contestTypeId   Int?
+  contestType     ContestTypes? @relation(fields: [contestTypeId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?    @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+  flavor          String?
+  color           String?
+}
+
+model ContestTypes {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  berryFlavors     BerryFlavors[]
+  contestTypeNames ContestTypeNames[]
+  moves            Moves[]
+  hatedFlavors     Natures[]          @relation("hatesFlavor")
+  likedFlavors     Natures[]          @relation("likesFlavor")
+}
+
+model EggGroupProse {
+  id              Int        @id @default(autoincrement())
+  eggGroupId      Int?
+  eggGroup        EggGroups? @relation(fields: [eggGroupId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model EggGroups {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  eggGroupProse    EggGroupProse[]
+  pokemonEggGroups PokemonEggGroups[]
+}
+
+model EncounterConditionProse {
+  id                   Int                  @id @default(autoincrement())
+  encounterConditionId Int?
+  encounterCondition   EncounterConditions? @relation(fields: [encounterConditionId], references: [id], onDelete: Cascade)
+  localLanguageId      Int?
+  localLanguage        Languages?           @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name                 String?
+}
+
+model EncounterConditionValueMap {
+  id                        Int                       @id @default(autoincrement())
+  encounterId               Int?
+  encounter                 Encounters?               @relation(fields: [encounterId], references: [id], onDelete: Cascade)
+  encounterConditionValueId Int?
+  encounterConditionValue   EncounterConditionValues? @relation(fields: [encounterConditionValueId], references: [id], onDelete: Cascade)
+}
+
+model EncounterConditionValueProse {
+  id                        Int                       @id @default(autoincrement())
+  encounterConditionValueId Int?
+  encounterConditionValue   EncounterConditionValues? @relation(fields: [encounterConditionValueId], references: [id], onDelete: Cascade)
+  localLanguageId           Int?
+  localLanguage             Languages?                @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name                      String?
+}
+
+model EncounterConditionValues {
+  id                   Int                  @id @default(autoincrement())
+  encounterConditionId Int?
+  encounterCondition   EncounterConditions? @relation(fields: [encounterConditionId], references: [id], onDelete: Cascade)
+  identifier           String?
+  isDefault            Boolean?
+
+  encounterConditionValueMap   EncounterConditionValueMap[]
+  encounterConditionValueProse EncounterConditionValueProse[]
+}
+
+model EncounterConditions {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  encounterConditionProse  EncounterConditionProse[]
+  encounterConditionValues EncounterConditionValues[]
+}
+
+model EncounterMethodProse {
+  id                Int               @id @default(autoincrement())
+  encounterMethodId Int?
+  encounterMethod   EncounterMethods? @relation(fields: [encounterMethodId], references: [id], onDelete: Cascade)
+  localLanguageId   Int?
+  localLanguage     Languages?        @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name              String?
+}
+
+model EncounterMethods {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+  order      String?
+
+  encounterMethodProse       EncounterMethodProse[]
+  encounterSlots             EncounterSlots[]
+  locationAreaEncounterRates LocationAreaEncounterRates[]
+}
+
+model EncounterSlots {
+  id                Int               @id @default(autoincrement())
+  versionGroupId    Int?
+  versionGroup      VersionGroups?    @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  encounterMethodId Int?
+  encounterMethod   EncounterMethods? @relation(fields: [encounterMethodId], references: [id], onDelete: Cascade)
+  slot              String?
+  rarity            String?
+
+  encounters Encounters[]
+}
+
+model Encounters {
+  id              Int             @id @default(autoincrement())
+  versionId       Int?
+  version         Versions?       @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  locationAreaId  Int?
+  locationArea    LocationAreas?  @relation(fields: [locationAreaId], references: [id], onDelete: Cascade)
+  encounterSlotId Int?
+  encounterSlot   EncounterSlots? @relation(fields: [encounterSlotId], references: [id], onDelete: Cascade)
+  pokemonId       Int?
+  pokemon         Pokemon?        @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  minLevel        String?
+  maxLevel        String?
+
+  encounterConditionValueMap EncounterConditionValueMap[]
+}
+
+model EvolutionChains {
+  id                Int    @id @default(autoincrement())
+  babyTriggerItemId Int?
+  babyTriggerItem   Items? @relation(fields: [babyTriggerItemId], references: [id], onDelete: Cascade)
+
+  pokemonSpecies PokemonSpecies[]
+}
+
+model EvolutionTriggerProse {
+  id                 Int                @id @default(autoincrement())
+  evolutionTriggerId Int?
+  evolutionTrigger   EvolutionTriggers? @relation(fields: [evolutionTriggerId], references: [id], onDelete: Cascade)
+  localLanguageId    Int?
+  localLanguage      Languages?         @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name               String?
+}
+
+model EvolutionTriggers {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  evolutionTriggerProse EvolutionTriggerProse[]
+  pokemonEvolution      PokemonEvolution[]
+}
+
+model Experience {
+  id           Int          @id @default(autoincrement())
+  growthRateId Int?
+  growthRate   GrowthRates? @relation(fields: [growthRateId], references: [id], onDelete: Cascade)
+  level        String?
+  experience   String?
+}
+
+model Genders {
+  id               Int                @id @default(autoincrement())
+  identifier       String?
+  pokemonEvolution PokemonEvolution[]
+}
+
+model GenerationNames {
+  id              Int          @id @default(autoincrement())
+  generationId    Int?
+  generation      Generations? @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?   @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model Generations {
+  id           Int      @id @default(autoincrement())
+  mainRegionId Int?
+  mainRegion   Regions? @relation(fields: [mainRegionId], references: [id], onDelete: Cascade)
+  identifier   String?
+
+  abilities              Abilities[]
+  generationNames        GenerationNames[]
+  itemGameIndices        ItemGameIndices[]
+  locationGameIndices    LocationGameIndices[]
+  moves                  Moves[]
+  pokemonFormGenerations PokemonFormGenerations[]
+  pokemonSpecies         PokemonSpecies[]
+  typeGameIndices        TypeGameIndices[]
+  types                  Types[]
+  versionGroups          VersionGroups[]
+}
+
+model GrowthRateProse {
+  id              Int          @id @default(autoincrement())
+  growthRateId    Int?
+  growthRate      GrowthRates? @relation(fields: [growthRateId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?   @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model GrowthRates {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+  formula    String?
+
+  experience      Experience[]
+  growthRateProse GrowthRateProse[]
+  pokemonSpecies  PokemonSpecies[]
+}
+
+model ItemCategories {
+  id         Int          @id @default(autoincrement())
+  pocketId   Int?
+  pocket     ItemPockets? @relation(fields: [pocketId], references: [id], onDelete: Cascade)
+  identifier String?
+
+  itemCategoryProse ItemCategoryProse[]
+  items             Items[]
+}
+
+model ItemCategoryProse {
+  id              Int             @id @default(autoincrement())
+  itemCategoryId  Int?
+  itemCategory    ItemCategories? @relation(fields: [itemCategoryId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?      @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model ItemFlagMap {
+  id         Int        @id @default(autoincrement())
+  itemId     Int?
+  item       Items?     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  itemFlagId Int?
+  itemFlag   ItemFlags? @relation(fields: [itemFlagId], references: [id], onDelete: Cascade)
+}
+
+model ItemFlagProse {
+  id              Int        @id @default(autoincrement())
+  itemFlagId      Int?
+  itemFlag        ItemFlags? @relation(fields: [itemFlagId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+  description     String?
+}
+
+model ItemFlags {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  itemFlagMap   ItemFlagMap[]
+  itemFlagProse ItemFlagProse[]
+}
+
+model ItemFlavorText {
+  id             Int            @id @default(autoincrement())
+  itemId         Int?
+  item           Items?         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  versionGroupId Int?
+  versionGroup   VersionGroups? @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  languageId     Int?
+  language       Languages?     @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  flavorText     String?
+}
+
+model ItemFlingEffectProse {
+  id                Int               @id @default(autoincrement())
+  itemFlingEffectId Int?
+  itemFlingEffect   ItemFlingEffects? @relation(fields: [itemFlingEffectId], references: [id], onDelete: Cascade)
+  localLanguageId   Int?
+  localLanguage     Languages?        @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  effect            String?
+}
+
+model ItemFlingEffects {
+  id                   Int                    @id @default(autoincrement())
+  identifier           String?
+  ItemFlingEffectProse ItemFlingEffectProse[]
+}
+
+model ItemGameIndices {
+  id           Int          @id @default(autoincrement())
+  itemId       Int?
+  item         Items?       @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  generationId Int?
+  generation   Generations? @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  gameIndex    String?
+}
+
+model ItemNames {
+  id              Int        @id @default(autoincrement())
+  itemId          Int?
+  item            Items?     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model ItemPocketNames {
+  id              Int          @id @default(autoincrement())
+  itemPocketId    Int?
+  itemPocket      ItemPockets? @relation(fields: [itemPocketId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?   @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model ItemPockets {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  itemCategories  ItemCategories[]
+  itemPocketNames ItemPocketNames[]
+}
+
+model ItemProse {
+  id              Int        @id @default(autoincrement())
+  itemId          Int?
+  item            Items?     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  shortEffect     String?
+  effect          String?
+}
+
+model Items {
+  id            Int             @id @default(autoincrement())
+  identifier    String?
+  categoryId    Int?
+  category      ItemCategories? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  cost          String?
+  flingPower    String?
+  flingEffectId Int?
+  flingEffect   MoveEffects?    @relation(fields: [flingEffectId], references: [id], onDelete: Cascade)
+
+  berries           Berries[]
+  evolutionChains   EvolutionChains[]
+  itemFlagMap       ItemFlagMap[]
+  itemFlavorText    ItemFlavorText[]
+  itemGameIndices   ItemGameIndices[]
+  itemNames         ItemNames[]
+  itemProse         ItemProse[]
+  machines          Machines[]
+  triggerEvolutions PokemonEvolution[] @relation("triggerItem")
+  heldEvolutions    PokemonEvolution[] @relation("heldItem")
+  pokemonItems      PokemonItems[]
+}
+
+model LanguageNames {
+  id              Int        @id @default(autoincrement())
+  languageId      Int?
+  language        Languages? @relation(name: "language", fields: [languageId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(name: "localLanguage", fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model Languages {
+  id         Int     @id @default(autoincrement())
+  iso639     String?
+  iso3166    String?
+  identifier String?
+  official   String?
+  order      String?
+
+  abilityChangelogProse        AbilityChangelogProse[]
+  abilityFlavorText            AbilityFlavorText[]
+  abilityNames                 AbilityNames[]
+  abilityProse                 AbilityProse[]
+  berryFirmnessNames           BerryFirmnessNames[]
+  characteristicText           CharacteristicText[]
+  contestEffectProse           ContestEffectProse[]
+  contestTypeNames             ContestTypeNames[]
+  eggGroupProse                EggGroupProse[]
+  encounterConditionProse      EncounterConditionProse[]
+  encounterConditionValueProse EncounterConditionValueProse[]
+  encounterMethodProse         EncounterMethodProse[]
+  evolutionTriggerProse        EvolutionTriggerProse[]
+  generationNames              GenerationNames[]
+  growthRateProse              GrowthRateProse[]
+  itemCategoryProse            ItemCategoryProse[]
+  itemFlagProse                ItemFlagProse[]
+  itemFlavorText               ItemFlavorText[]
+  itemFlingEffectProse         ItemFlingEffectProse[]
+  itemNames                    ItemNames[]
+  itemPocketNames              ItemPocketNames[]
+  itemProse                    ItemProse[]
+  languageNames                LanguageNames[]                @relation("language")
+  localLanguageNames           LanguageNames[]                @relation("localLanguage")
+  locationAreaProse            LocationAreaProse[]
+  locationNames                LocationNames[]
+  moveBattleStyleProse         MoveBattleStyleProse[]
+  moveDamageClassProse         MoveDamageClassProse[]
+  moveEffectChangelogProse     MoveEffectChangelogProse[]
+  moveEffectProse              MoveEffectProse[]
+  moveFlagProse                MoveFlagProse[]
+  moveFlavorText               MoveFlavorText[]
+  moveMetaAilmentNames         MoveMetaAilmentNames[]
+  moveMetaCategoryProse        MoveMetaCategoryProse[]
+  moveNames                    MoveNames[]
+  moveTargetProse              MoveTargetProse[]
+  natureNames                  NatureNames[]
+  palParkAreaNames             PalParkAreaNames[]
+  pokeathlonStatNames          PokeathlonStatNames[]
+  pokedexProse                 PokedexProse[]
+  pokemonColorNames            PokemonColorNames[]
+  pokemonFormNames             PokemonFormNames[]
+  pokemonHabitatNames          PokemonHabitatNames[]
+  pokemonMoveMethodProse       PokemonMoveMethodProse[]
+  pokemonShapeProse            PokemonShapeProse[]
+  pokemonSpeciesFlavorText     PokemonSpeciesFlavorText[]
+  pokemonSpeciesNames          PokemonSpeciesNames[]
+  pokemonSpeciesProse          PokemonSpeciesProse[]
+  regionNames                  RegionNames[]
+  statNames                    StatNames[]
+  superContestEffectProse      SuperContestEffectProse[]
+  typeNames                    TypeNames[]
+  versionNames                 VersionNames[]
+}
+
+model LocationAreaEncounterRates {
+  id                Int               @id @default(autoincrement())
+  locationAreaId    Int?
+  locationArea      LocationAreas?    @relation(fields: [locationAreaId], references: [id], onDelete: Cascade)
+  encounterMethodId Int?
+  encounterMethod   EncounterMethods? @relation(fields: [encounterMethodId], references: [id], onDelete: Cascade)
+  versionId         Int?
+  version           Versions?         @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  rate              String?
+}
+
+model LocationAreaProse {
+  id              Int            @id @default(autoincrement())
+  locationAreaId  Int?
+  locationArea    LocationAreas? @relation(fields: [locationAreaId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?     @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model LocationAreas {
+  id         Int        @id @default(autoincrement())
+  locationId Int?
+  location   Locations? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  gameIndex  String?
+  identifier String?
+
+  encounters                 Encounters[]
+  locationAreaEncounterRates LocationAreaEncounterRates[]
+  locationAreaProse          LocationAreaProse[]
+}
+
+model LocationGameIndices {
+  id           Int          @id @default(autoincrement())
+  locationId   Int?
+  location     Locations?   @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  generationId Int?
+  generation   Generations? @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  gameIndex    String?
+}
+
+model LocationNames {
+  id              Int        @id @default(autoincrement())
+  locationId      Int?
+  location        Locations? @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+  subtitle        String?
+}
+
+model Locations {
+  id         Int      @id @default(autoincrement())
+  regionId   Int?
+  region     Regions? @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  identifier String?
+
+  locationAreas       LocationAreas[]
+  locationGameIndices LocationGameIndices[]
+  locationNames       LocationNames[]
+  pokemonEvolution    PokemonEvolution[]
+}
+
+model Machines {
+  id             Int            @id @default(autoincrement())
+  machineNumber  String?
+  versionGroupId Int?
+  versionGroup   VersionGroups? @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  itemId         Int?
+  item           Items?         @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  moveId         Int?
+  move           Moves?         @relation(fields: [moveId], references: [id], onDelete: Cascade)
+}
+
+model MoveBattleStyleProse {
+  id                Int               @id @default(autoincrement())
+  moveBattleStyleId Int?
+  moveBattleStyle   MoveBattleStyles? @relation(fields: [moveBattleStyleId], references: [id], onDelete: Cascade)
+  localLanguageId   Int?
+  localLanguage     Languages?        @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name              String?
+}
+
+model MoveBattleStyles {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  moveBattleStyleProse         MoveBattleStyleProse[]
+  natureBattleStylePreferences NatureBattleStylePreferences[]
+}
+
+model MoveChangelog {
+  id                      Int            @id @default(autoincrement())
+  moveId                  Int?
+  move                    Moves?         @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  changedInVersionGroupId Int?
+  changedInVersionGroup   VersionGroups? @relation(fields: [changedInVersionGroupId], references: [id], onDelete: Cascade)
+  typeId                  Int?
+  type                    Types?         @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  power                   String?
+  pp                      String?
+  accuracy                String?
+  priority                String?
+  targetId                Int?
+  target                  MoveTargets?   @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  effectId                Int?
+  effect                  MoveEffects?   @relation(fields: [effectId], references: [id], onDelete: Cascade)
+  effectChance            String?
+}
+
+model MoveDamageClassProse {
+  id                Int                @id @default(autoincrement())
+  moveDamageClassId Int?
+  moveDamageClass   MoveDamageClasses? @relation(fields: [moveDamageClassId], references: [id], onDelete: Cascade)
+  localLanguageId   Int?
+  localLanguage     Languages?         @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name              String?
+  description       String?
+}
+
+model MoveDamageClasses {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  moveDamageClassProse MoveDamageClassProse[]
+  moves                Moves[]
+  stats                Stats[]
+  types                Types[]
+}
+
+model MoveEffectChangelog {
+  id                      Int            @id @default(autoincrement())
+  effectId                Int?
+  effect                  MoveEffects?   @relation(fields: [effectId], references: [id], onDelete: Cascade)
+  changedInVersionGroupId Int?
+  changedInVersionGroup   VersionGroups? @relation(fields: [changedInVersionGroupId], references: [id], onDelete: Cascade)
+
+  moveEffectChangelogProse MoveEffectChangelogProse[]
+}
+
+model MoveEffectChangelogProse {
+  id                    Int                  @id @default(autoincrement())
+  moveEffectChangelogId Int?
+  moveEffectChangelog   MoveEffectChangelog? @relation(fields: [moveEffectChangelogId], references: [id], onDelete: Cascade)
+  localLanguageId       Int?
+  localLanguage         Languages?           @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  effect                String?
+}
+
+model MoveEffectProse {
+  id              Int          @id @default(autoincrement())
+  moveEffectId    Int?
+  moveEffect      MoveEffects? @relation(fields: [moveEffectId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?   @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  shortEffect     String?
+  effect          String?
+}
+
+model MoveEffects {
+  id Int @id @default(autoincrement())
+
+  items               Items[]
+  moveChangelog       MoveChangelog[]
+  moveEffectChangelog MoveEffectChangelog[]
+  moveEffectProse     MoveEffectProse[]
+  moves               Moves[]
+}
+
+model MoveFlagMap {
+  id         Int        @id @default(autoincrement())
+  moveId     Int?
+  move       Moves?     @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  moveFlagId Int?
+  moveFlag   MoveFlags? @relation(fields: [moveFlagId], references: [id], onDelete: Cascade)
+}
+
+model MoveFlagProse {
+  id              Int        @id @default(autoincrement())
+  moveFlagId      Int?
+  moveFlag        MoveFlags? @relation(fields: [moveFlagId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+  description     String?
+}
+
+model MoveFlags {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  moveFlagMap   MoveFlagMap[]
+  moveFlagProse MoveFlagProse[]
+}
+
+model MoveFlavorText {
+  id             Int            @id @default(autoincrement())
+  moveId         Int?
+  move           Moves?         @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  versionGroupId Int?
+  versionGroup   VersionGroups? @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  languageId     Int?
+  language       Languages?     @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  flavorText     String?
+}
+
+model MoveMeta {
+  id             Int                 @id @default(autoincrement())
+  moveId         Int?
+  move           Moves?              @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  metaCategoryId Int?
+  metaCategory   MoveMetaCategories? @relation(fields: [metaCategoryId], references: [id], onDelete: Cascade)
+  metaAilmentId  Int?
+  metaAilment    MoveMetaAilments?   @relation(fields: [metaAilmentId], references: [id], onDelete: Cascade)
+  minHits        String?
+  maxHits        String?
+  minTurns       String?
+  maxTurns       String?
+  drain          String?
+  healing        String?
+  critRate       String?
+  ailmentChance  String?
+  flinchChance   String?
+  statChance     String?
+}
+
+model MoveMetaAilmentNames {
+  id                Int               @id @default(autoincrement())
+  moveMetaAilmentId Int?
+  moveMetaAilment   MoveMetaAilments? @relation(fields: [moveMetaAilmentId], references: [id], onDelete: Cascade)
+  localLanguageId   Int?
+  localLanguage     Languages?        @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name              String?
+}
+
+model MoveMetaAilments {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  moveMeta             MoveMeta[]
+  moveMetaAilmentNames MoveMetaAilmentNames[]
+}
+
+model MoveMetaCategories {
+  id                    Int                     @id @default(autoincrement())
+  identifier            String?
+  moveMeta              MoveMeta[]
+  moveMetaCategoryProse MoveMetaCategoryProse[]
+}
+
+model MoveMetaCategoryProse {
+  id                 Int                 @id @default(autoincrement())
+  moveMetaCategoryId Int?
+  moveMetaCategory   MoveMetaCategories? @relation(fields: [moveMetaCategoryId], references: [id], onDelete: Cascade)
+  localLanguageId    Int?
+  localLanguage      Languages?          @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  description        String?
+}
+
+model MoveMetaStatChanges {
+  id     Int     @id @default(autoincrement())
+  moveId Int?
+  move   Moves?  @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  statId Int?
+  stat   Stats?  @relation(fields: [statId], references: [id], onDelete: Cascade)
+  change String?
+}
+
+model MoveNames {
+  id              Int        @id @default(autoincrement())
+  moveId          Int?
+  move            Moves?     @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model MoveTargetProse {
+  id              Int          @id @default(autoincrement())
+  moveTargetId    Int?
+  moveTarget      MoveTargets? @relation(fields: [moveTargetId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?   @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+  description     String?
+}
+
+model MoveTargets {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  moveChangelog   MoveChangelog[]
+  moveTargetProse MoveTargetProse[]
+  moves           Moves[]
+}
+
+model Moves {
+  id                   Int                  @id @default(autoincrement())
+  identifier           String?
+  generationId         Int?
+  generation           Generations?         @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  typeId               Int?
+  type                 Types?               @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  power                String?
+  pp                   String?
+  accuracy             String?
+  priority             String?
+  targetId             Int?
+  target               MoveTargets?         @relation(fields: [targetId], references: [id], onDelete: Cascade)
+  damageClassId        Int?
+  damageClass          MoveDamageClasses?   @relation(fields: [damageClassId], references: [id], onDelete: Cascade)
+  effectId             Int?
+  effect               MoveEffects?         @relation(fields: [effectId], references: [id], onDelete: Cascade)
+  effectChance         String?
+  contestTypeId        Int?
+  contestType          ContestTypes?        @relation(fields: [contestTypeId], references: [id], onDelete: Cascade)
+  contestEffectId      Int?
+  contestEffect        ContestEffects?      @relation(fields: [contestEffectId], references: [id], onDelete: Cascade)
+  superContestEffectId Int?
+  superContestEffect   SuperContestEffects? @relation(fields: [superContestEffectId], references: [id], onDelete: Cascade)
+
+  contestFirstMoves       ContestCombos[]       @relation("firstMove")
+  contestSecondMoves      ContestCombos[]       @relation("secondMove")
+  machines                Machines[]
+  moveChangelog           MoveChangelog[]
+  moveFlagMap             MoveFlagMap[]
+  moveFlavorText          MoveFlavorText[]
+  moveMeta                MoveMeta[]
+  moveMetaStatChanges     MoveMetaStatChanges[]
+  moveNames               MoveNames[]
+  pokemonEvolution        PokemonEvolution[]
+  pokemonMoves            PokemonMoves[]
+  superContestFirstMoves  SuperContestCombos[]  @relation("firstMove")
+  superContestSecondMoves SuperContestCombos[]  @relation("secondMove")
+}
+
+model NatureBattleStylePreferences {
+  id                Int               @id @default(autoincrement())
+  natureId          Int?
+  nature            Natures?          @relation(fields: [natureId], references: [id], onDelete: Cascade)
+  moveBattleStyleId Int?
+  moveBattleStyle   MoveBattleStyles? @relation(fields: [moveBattleStyleId], references: [id], onDelete: Cascade)
+  lowHpPreference   String?
+  highHpPreference  String?
+}
+
+model NatureNames {
+  id              Int        @id @default(autoincrement())
+  natureId        Int?
+  nature          Natures?   @relation(fields: [natureId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model NaturePokeathlonStats {
+  id               Int              @id @default(autoincrement())
+  natureId         Int?
+  nature           Natures?         @relation(fields: [natureId], references: [id], onDelete: Cascade)
+  pokeathlonStatId Int?
+  pokeathlonStat   PokeathlonStats? @relation(fields: [pokeathlonStatId], references: [id], onDelete: Cascade)
+  maxChange        String?
+}
+
+model Natures {
+  id              Int           @id @default(autoincrement())
+  identifier      String?
+  decreasedStatId Int?
+  decreasedStat   Stats?        @relation(name: "decreasedStat", fields: [decreasedStatId], references: [id], onDelete: Cascade)
+  increasedStatId Int?
+  increasedStat   Stats?        @relation(name: "increasedStat", fields: [increasedStatId], references: [id], onDelete: Cascade)
+  hatesFlavorId   Int?
+  hatesFlavor     ContestTypes? @relation(name: "hatesFlavor", fields: [hatesFlavorId], references: [id], onDelete: Cascade)
+  likesFlavorId   Int?
+  likesFlavor     ContestTypes? @relation(name: "likesFlavor", fields: [likesFlavorId], references: [id], onDelete: Cascade)
+  gameIndex       String?
+
+  natureBattleStylePreferences NatureBattleStylePreferences[]
+  natureNames                  NatureNames[]
+  naturePokeathlonStats        NaturePokeathlonStats[]
+}
+
+model PalPark {
+  id        Int             @id @default(autoincrement())
+  speciesId Int?
+  species   PokemonSpecies? @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  areaId    Int?
+  area      PalParkAreas?   @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  baseScore String?
+  rate      String?
+}
+
+model PalParkAreaNames {
+  id              Int           @id @default(autoincrement())
+  palParkAreaId   Int?
+  palParkArea     PalParkAreas? @relation(fields: [palParkAreaId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?    @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model PalParkAreas {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  palPark          PalPark[]
+  palParkAreaNames PalParkAreaNames[]
+}
+
+model PokeathlonStatNames {
+  id               Int              @id @default(autoincrement())
+  pokeathlonStatId Int?
+  pokeathlonStat   PokeathlonStats? @relation(fields: [pokeathlonStatId], references: [id], onDelete: Cascade)
+  localLanguageId  Int?
+  localLanguage    Languages?       @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name             String?
+}
+
+model PokeathlonStats {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  naturePokeathlonStats      NaturePokeathlonStats[]
+  pokeathlonStatNames        PokeathlonStatNames[]
+  pokemonFormPokeathlonStats PokemonFormPokeathlonStats[]
+}
+
+model PokedexProse {
+  id              Int        @id @default(autoincrement())
+  pokedexId       Int?
+  pokedex         Pokedexes? @relation(fields: [pokedexId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+  description     String?
+}
+
+model PokedexVersionGroups {
+  id             Int            @id @default(autoincrement())
+  pokedexId      Int?
+  pokedex        Pokedexes?     @relation(fields: [pokedexId], references: [id], onDelete: Cascade)
+  versionGroupId Int?
+  versionGroup   VersionGroups? @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+}
+
+model Pokedexes {
+  id           Int      @id @default(autoincrement())
+  regionId     Int?
+  region       Regions? @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  identifier   String?
+  isMainSeries Boolean?
+
+  pokedexProse         PokedexProse[]
+  pokedexVersionGroups PokedexVersionGroups[]
+  pokemonDexNumbers    PokemonDexNumbers[]
+}
+
+model Pokemon {
+  id             Int             @id @default(autoincrement())
+  identifier     String?
+  speciesId      Int?
+  species        PokemonSpecies? @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  height         String?
+  weight         String?
+  baseExperience String?
+  order          String?
+  isDefault      Boolean?
+
+  encounters         Encounters[]
+  pokemonAbilities   PokemonAbilities[]
+  pokemonForms       PokemonForms[]
+  pokemonGameIndices PokemonGameIndices[]
+  pokemonItems       PokemonItems[]
+  pokemonMoves       PokemonMoves[]
+  pokemonStats       PokemonStats[]
+  pokemonTypes       PokemonTypes[]
+}
+
+model PokemonAbilities {
+  id        Int        @id @default(autoincrement())
+  pokemonId Int?
+  pokemon   Pokemon?   @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  abilityId Int?
+  ability   Abilities? @relation(fields: [abilityId], references: [id], onDelete: Cascade)
+  isHidden  Boolean?
+  slot      String?
+}
+
+model PokemonColorNames {
+  id              Int            @id @default(autoincrement())
+  pokemonColorId  Int?
+  pokemonColor    PokemonColors? @relation(fields: [pokemonColorId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?     @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model PokemonColors {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  pokemonColorNames PokemonColorNames[]
+  pokemonSpecies    PokemonSpecies[]
+}
+
+model PokemonDexNumbers {
+  id            Int             @id @default(autoincrement())
+  speciesId     Int?
+  species       PokemonSpecies? @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  pokedexId     Int?
+  pokedex       Pokedexes?      @relation(fields: [pokedexId], references: [id], onDelete: Cascade)
+  pokedexNumber String?
+}
+
+model PokemonEggGroups {
+  id         Int             @id @default(autoincrement())
+  speciesId  Int?
+  species    PokemonSpecies? @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  eggGroupId Int?
+  eggGroup   EggGroups?      @relation(fields: [eggGroupId], references: [id], onDelete: Cascade)
+}
+
+model PokemonEvolution {
+  id                    Int                @id @default(autoincrement())
+  evolvedSpeciesId      Int?
+  evolvedSpecies        PokemonSpecies?    @relation(name: "evolvedSpecies", fields: [evolvedSpeciesId], references: [id], onDelete: Cascade)
+  evolutionTriggerId    Int?
+  evolutionTrigger      EvolutionTriggers? @relation(fields: [evolutionTriggerId], references: [id], onDelete: Cascade)
+  triggerItemId         Int?
+  triggerItem           Items?             @relation(name: "triggerItem", fields: [triggerItemId], references: [id], onDelete: Cascade)
+  minimumLevel          String?
+  genderId              Int?
+  gender                Genders?           @relation(fields: [genderId], references: [id], onDelete: Cascade)
+  locationId            Int?
+  location              Locations?         @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  heldItemId            Int?
+  heldItem              Items?             @relation(name: "heldItem", fields: [heldItemId], references: [id], onDelete: Cascade)
+  timeOfDay             String?
+  knownMoveId           Int?
+  knownMove             Moves?             @relation(fields: [knownMoveId], references: [id], onDelete: Cascade)
+  knownMoveTypeId       Int?
+  knownMoveType         Types?             @relation(name: "knownMoveType", fields: [knownMoveTypeId], references: [id], onDelete: Cascade)
+  minimumHappiness      String?
+  minimumBeauty         String?
+  minimumAffection      String?
+  relativePhysicalStats String?
+  partySpeciesId        Int?
+  partySpecies          PokemonSpecies?    @relation(name: "partySpecies", fields: [partySpeciesId], references: [id], onDelete: Cascade)
+  partyTypeId           Int?
+  partyType             Types?             @relation(name: "partyType", fields: [partyTypeId], references: [id], onDelete: Cascade)
+  tradeSpeciesId        Int?
+  tradeSpecies          PokemonSpecies?    @relation(name: "tradeSpecies", fields: [tradeSpeciesId], references: [id], onDelete: Cascade)
+  needsOverworldRain    String?
+  turnUpsideDown        String?
+}
+
+model PokemonFormGenerations {
+  id            Int           @id @default(autoincrement())
+  pokemonFormId Int?
+  pokemonForm   PokemonForms? @relation(fields: [pokemonFormId], references: [id], onDelete: Cascade)
+  generationId  Int?
+  generation    Generations?  @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  gameIndex     String?
+}
+
+model PokemonFormNames {
+  id              Int           @id @default(autoincrement())
+  pokemonFormId   Int?
+  pokemonForm     PokemonForms? @relation(fields: [pokemonFormId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?    @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  formName        String?
+  pokemonName     String?
+}
+
+model PokemonFormPokeathlonStats {
+  id               Int              @id @default(autoincrement())
+  pokemonFormId    Int?
+  pokemonForm      PokemonForms?    @relation(fields: [pokemonFormId], references: [id], onDelete: Cascade)
+  pokeathlonStatId Int?
+  pokeathlonStat   PokeathlonStats? @relation(fields: [pokeathlonStatId], references: [id], onDelete: Cascade)
+  minimumStat      String?
+  baseStat         String?
+  maximumStat      String?
+}
+
+model PokemonForms {
+  id                         Int            @id @default(autoincrement())
+  identifier                 String?
+  formIdentifier             String?
+  pokemonId                  Int?
+  pokemon                    Pokemon?       @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  introducedInVersionGroupId Int?
+  introducedInVersionGroup   VersionGroups? @relation(fields: [introducedInVersionGroupId], references: [id], onDelete: Cascade)
+  isDefault                  Boolean?
+  isBattleOnly               Boolean?
+  isMega                     Boolean?
+  formOrder                  String?
+  order                      String?
+
+  pokemonFormGenerations     PokemonFormGenerations[]
+  pokemonFormNames           PokemonFormNames[]
+  pokemonFormPokeathlonStats PokemonFormPokeathlonStats[]
+}
+
+model PokemonGameIndices {
+  id        Int       @id @default(autoincrement())
+  pokemonId Int?
+  pokemon   Pokemon?  @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  versionId Int?
+  version   Versions? @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  gameIndex String?
+}
+
+model PokemonHabitatNames {
+  id               Int              @id @default(autoincrement())
+  pokemonHabitatId Int?
+  pokemonHabitat   PokemonHabitats? @relation(fields: [pokemonHabitatId], references: [id], onDelete: Cascade)
+  localLanguageId  Int?
+  localLanguage    Languages?       @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name             String?
+}
+
+model PokemonHabitats {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  pokemonHabitatNames PokemonHabitatNames[]
+  pokemonSpecies      PokemonSpecies[]
+}
+
+model PokemonItems {
+  id        Int       @id @default(autoincrement())
+  pokemonId Int?
+  pokemon   Pokemon?  @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  versionId Int?
+  version   Versions? @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  itemId    Int?
+  item      Items?    @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  rarity    String?
+}
+
+model PokemonMoveMethodProse {
+  id                  Int                 @id @default(autoincrement())
+  pokemonMoveMethodId Int?
+  pokemonMoveMethod   PokemonMoveMethods? @relation(fields: [pokemonMoveMethodId], references: [id], onDelete: Cascade)
+  localLanguageId     Int?
+  localLanguage       Languages?          @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name                String?
+  description         String?
+}
+
+model PokemonMoveMethods {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  pokemonMoveMethodProse         PokemonMoveMethodProse[]
+  pokemonMoves                   PokemonMoves[]
+  versionGroupPokemonMoveMethods VersionGroupPokemonMoveMethods[]
+}
+
+model PokemonMoves {
+  id                  Int                 @id @default(autoincrement())
+  pokemonId           Int?
+  pokemon             Pokemon?            @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  versionGroupId      Int?
+  versionGroup        VersionGroups?      @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  moveId              Int?
+  move                Moves?              @relation(fields: [moveId], references: [id], onDelete: Cascade)
+  pokemonMoveMethodId Int?
+  pokemonMoveMethod   PokemonMoveMethods? @relation(fields: [pokemonMoveMethodId], references: [id], onDelete: Cascade)
+  level               String?
+  order               String?
+}
+
+model PokemonShapeProse {
+  id              Int            @id @default(autoincrement())
+  pokemonShapeId  Int?
+  pokemonShape    PokemonShapes? @relation(fields: [pokemonShapeId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages?     @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+  awesomeName     String?
+  description     String?
+}
+
+model PokemonShapes {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  pokemonShapeProse PokemonShapeProse[]
+  pokemonSpecies    PokemonSpecies[]
+}
+
+model PokemonSpecies {
+  id                   Int              @id @default(autoincrement())
+  identifier           String?
+  generationId         Int?
+  generation           Generations?     @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  evolvesFromSpeciesId Int?
+  evolvesFromSpecies   PokemonSpecies?  @relation("evolution", fields: [evolvesFromSpeciesId], references: [id])
+  evolvesToSpecies     PokemonSpecies[] @relation("evolution")
+  evolutionChainId     Int?
+  evolutionChain       EvolutionChains? @relation(fields: [evolutionChainId], references: [id], onDelete: Cascade)
+  colorId              Int?
+  color                PokemonColors?   @relation(fields: [colorId], references: [id], onDelete: Cascade)
+  shapeId              Int?
+  shape                PokemonShapes?   @relation(fields: [shapeId], references: [id], onDelete: Cascade)
+  habitatId            Int?
+  habitat              PokemonHabitats? @relation(fields: [habitatId], references: [id], onDelete: Cascade)
+  genderRate           String?
+  captureRate          String?
+  baseHappiness        String?
+  isBaby               Boolean?
+  hatchCounter         String?
+  hasGenderDifferences String?
+  growthRateId         Int?
+  growthRate           GrowthRates?     @relation(fields: [growthRateId], references: [id], onDelete: Cascade)
+  formsSwitchable      String?
+  isLegendary          Boolean?
+  isMythical           Boolean?
+  order                String?
+  conquestOrder        String?
+
+  palPark                  PalPark[]
+  pokemon                  Pokemon[]
+  pokemonDexNumbers        PokemonDexNumbers[]
+  pokemonEggGroups         PokemonEggGroups[]
+  pokemonEvolvedSpecies    PokemonEvolution[]         @relation("evolvedSpecies")
+  pokemonPartySpecies      PokemonEvolution[]         @relation("partySpecies")
+  pokemonTradeSpecies      PokemonEvolution[]         @relation("tradeSpecies")
+  pokemonSpeciesFlavorText PokemonSpeciesFlavorText[]
+  pokemonSpeciesNames      PokemonSpeciesNames[]
+  pokemonSpeciesProse      PokemonSpeciesProse[]
+}
+
+model PokemonSpeciesFlavorText {
+  id         Int             @id @default(autoincrement())
+  speciesId  Int?
+  species    PokemonSpecies? @relation(fields: [speciesId], references: [id], onDelete: Cascade)
+  versionId  Int?
+  version    Versions?       @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  languageId Int?
+  language   Languages?      @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  flavorText String?
+}
+
+model PokemonSpeciesNames {
+  id               Int             @id @default(autoincrement())
+  pokemonSpeciesId Int?
+  pokemonSpecies   PokemonSpecies? @relation(fields: [pokemonSpeciesId], references: [id], onDelete: Cascade)
+  localLanguageId  Int?
+  localLanguage    Languages?      @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name             String?
+  genus            String?
+}
+
+model PokemonSpeciesProse {
+  id               Int             @id @default(autoincrement())
+  pokemonSpeciesId Int?
+  pokemonSpecies   PokemonSpecies? @relation(fields: [pokemonSpeciesId], references: [id], onDelete: Cascade)
+  localLanguageId  Int?
+  localLanguage    Languages?      @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  formDescription  String?
+}
+
+model PokemonStats {
+  id        Int      @id @default(autoincrement())
+  pokemonId Int?
+  pokemon   Pokemon? @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  statId    Int?
+  stat      Stats?   @relation(fields: [statId], references: [id], onDelete: Cascade)
+  baseStat  String?
+  effort    String?
+}
+
+model PokemonTypes {
+  id        Int      @id @default(autoincrement())
+  pokemonId Int?
+  pokemon   Pokemon? @relation(fields: [pokemonId], references: [id], onDelete: Cascade)
+  typeId    Int?
+  type      Types?   @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  slot      String?
+}
+
+model RegionNames {
+  id              Int        @id @default(autoincrement())
+  regionId        Int?
+  region          Regions?   @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model Regions {
+  id         Int     @id @default(autoincrement())
+  identifier String?
+
+  generations         Generations[]
+  locations           Locations[]
+  pokedexes           Pokedexes[]
+  regionNames         RegionNames[]
+  versionGroupRegions VersionGroupRegions[]
+}
+
+model StatNames {
+  id              Int        @id @default(autoincrement())
+  statId          Int?
+  stat            Stats?     @relation(fields: [statId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model Stats {
+  id            Int                @id @default(autoincrement())
+  damageClassId Int?
+  damageClass   MoveDamageClasses? @relation(fields: [damageClassId], references: [id], onDelete: Cascade)
+  identifier    String?
+  isBattleOnly  Boolean?
+  gameIndex     String?
+
+  characteristics       Characteristics[]
+  moveMetaStatChanges   MoveMetaStatChanges[]
+  natureIncreasedStatus Natures[]             @relation("increasedStat")
+  natureDecreasedStatus Natures[]             @relation("decreasedStat")
+  pokemonStats          PokemonStats[]
+  statNames             StatNames[]
+}
+
+model SuperContestCombos {
+  id           Int    @id @default(autoincrement())
+  firstMoveId  Int?
+  firstMove    Moves? @relation(name: "firstMove", fields: [firstMoveId], references: [id], onDelete: Cascade)
+  secondMoveId Int?
+  secondMove   Moves? @relation(name: "secondMove", fields: [secondMoveId], references: [id], onDelete: Cascade)
+}
+
+model SuperContestEffectProse {
+  id                   Int                  @id @default(autoincrement())
+  superContestEffectId Int?
+  superContestEffect   SuperContestEffects? @relation(fields: [superContestEffectId], references: [id], onDelete: Cascade)
+  localLanguageId      Int?
+  localLanguage        Languages?           @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  flavorText           String?
+}
+
+model SuperContestEffects {
+  id     Int     @id @default(autoincrement())
+  appeal String?
+
+  moves                   Moves[]
+  superContestEffectProse SuperContestEffectProse[]
+}
+
+model TypeEfficacy {
+  id           Int     @id @default(autoincrement())
+  damageTypeId Int?
+  damageType   Types?  @relation(name: "damageType", fields: [damageTypeId], references: [id], onDelete: Cascade)
+  targetTypeId Int?
+  targetType   Types?  @relation(name: "targetType", fields: [targetTypeId], references: [id], onDelete: Cascade)
+  damageFactor String?
+}
+
+model TypeGameIndices {
+  id           Int          @id @default(autoincrement())
+  typeId       Int?
+  type         Types?       @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  generationId Int?
+  generation   Generations? @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  gameIndex    String?
+}
+
+model TypeNames {
+  id              Int        @id @default(autoincrement())
+  typeId          Int?
+  type            Types?     @relation(fields: [typeId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model Types {
+  id                  Int                @id @default(autoincrement())
+  identifier          String?
+  generationId        Int?
+  generation          Generations?       @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  damageClassId       Int?
+  damageClass         MoveDamageClasses? @relation(fields: [damageClassId], references: [id], onDelete: Cascade)
+  berries             Berries[]
+  moveChangelog       MoveChangelog[]
+  moves               Moves[]
+  knowMoveEvolutions  PokemonEvolution[] @relation("knownMoveType")
+  partyTypeEvolutions PokemonEvolution[] @relation("partyType")
+  pokemonTypes        PokemonTypes[]
+  efficacies          TypeEfficacy[]     @relation("damageType")
+  weaknesses          TypeEfficacy[]     @relation("targetType")
+  typeGameIndices     TypeGameIndices[]
+  typeNames           TypeNames[]
+}
+
+model VersionGroupPokemonMoveMethods {
+  id                  Int                 @id @default(autoincrement())
+  versionGroupId      Int?
+  versionGroup        VersionGroups?      @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  pokemonMoveMethodId Int?
+  pokemonMoveMethod   PokemonMoveMethods? @relation(fields: [pokemonMoveMethodId], references: [id], onDelete: Cascade)
+}
+
+model VersionGroupRegions {
+  id             Int            @id @default(autoincrement())
+  versionGroupId Int?
+  versionGroup   VersionGroups? @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  regionId       Int?
+  region         Regions?       @relation(fields: [regionId], references: [id], onDelete: Cascade)
+}
+
+model VersionGroups {
+  id           Int          @id @default(autoincrement())
+  identifier   String?
+  generationId Int?
+  generation   Generations? @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  order        String?
+
+  abilityChangelog               AbilityChangelog[]
+  abilityFlavorText              AbilityFlavorText[]
+  encounterSlots                 EncounterSlots[]
+  itemFlavorText                 ItemFlavorText[]
+  machines                       Machines[]
+  moveChangelog                  MoveChangelog[]
+  moveEffectChangelog            MoveEffectChangelog[]
+  moveFlavorText                 MoveFlavorText[]
+  pokedexVersionGroups           PokedexVersionGroups[]
+  pokemonForms                   PokemonForms[]
+  pokemonMoves                   PokemonMoves[]
+  versionGroupPokemonMoveMethods VersionGroupPokemonMoveMethods[]
+  versionGroupRegions            VersionGroupRegions[]
+  versions                       Versions[]
+}
+
+model VersionNames {
+  id              Int        @id @default(autoincrement())
+  versionId       Int?
+  version         Versions?  @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  localLanguageId Int?
+  localLanguage   Languages? @relation(fields: [localLanguageId], references: [id], onDelete: Cascade)
+  name            String?
+}
+
+model Versions {
+  id             Int            @id @default(autoincrement())
+  versionGroupId Int?
+  versionGroup   VersionGroups? @relation(fields: [versionGroupId], references: [id], onDelete: Cascade)
+  identifier     String?
+
+  encounters                 Encounters[]
+  locationAreaEncounterRates LocationAreaEncounterRates[]
+  pokemonGameIndices         PokemonGameIndices[]
+  pokemonItems               PokemonItems[]
+  pokemonSpeciesFlavorText   PokemonSpeciesFlavorText[]
+  versionNames               VersionNames[]
+}

@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  app:
+    container_name: pokedex
+    build:
+      context: .
+      target: development
+      dockerfile: ./Dockerfile
+    env_file: .env
+    command: sh -c "yarn dev"
+    depends_on:
+      - db
+    ports:
+      - 3000:3000
+      - 5555:5555
+    networks:
+      - pokedex
+    volumes:
+      - .:/usr/src/app
+    restart: unless-stopped
+
+  db:
+    build: ./.docker/postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./.docker/dbdata:/var/lib/postgresql/data
+      - ./.docker/sql:/docker-entrypoint-initdb.d
+    networks:
+      - pokedex
+
+networks:
+  pokedex:
+    driver: bridge
